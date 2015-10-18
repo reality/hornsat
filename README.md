@@ -3,6 +3,7 @@
 ### Usage
 
 groovy backwards.groovy Girl
+
 groovy forwards.groovy Girl
 
 Additional entailment literals can be given, it's just space-delimited in the arguments.
@@ -16,7 +17,7 @@ literal, and the rest are negatives.
 For example,
 
 ```json 
-  [ "Child", "Female", "Girl" ],
+  [ "Child", "Female", "Girl" ]
 ```
 
 Is logically equivalent to
