@@ -7,7 +7,7 @@ def KB = new JsonSlurper().parse(file).clauses
 def toEntail = [ "Girl" ]
 def entailed = []
 
-// Naive O(kb^2)
+// Naive 
 while(toEntail.size() > 0) {
   KB.each { clause ->
     def positive = clause.last() // Positive literal is last
