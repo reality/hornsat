@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 def file = new File('knowledgebase.json')
 def KB = new JsonSlurper().parse(file).clauses
 
-def toEntail = [ "Girl" ]
+def toEntail = args
 
 def solve(literals, KB) {
   if(literals.size() == 0) return true;

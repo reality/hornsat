@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 def file = new File('knowledgebase.json')
 def KB = new JsonSlurper().parse(file).clauses
 
-def toEntail = [ "Girl" ]
+def toEntail = args
 def entailed = []
 
 // Naive 
@@ -27,4 +27,4 @@ while(toEntail.size() > 0) {
   }
 }
 
-println "KB ⊨ Girl"
+println "KB ⊨ " + args
