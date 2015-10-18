@@ -1,0 +1,10 @@
+{
+  "clauses": [
+    [ "Toddler" ],
+    [ "Toddler", "Child" ],
+    [ "Child", "Male", "Boy" ],
+    [ "Infant", "Child" ],
+    [ "Child", "Female", "Girl" ],
+    [ "Female" ]
+  ]
+}
