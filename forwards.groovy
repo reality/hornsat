@@ -25,8 +25,6 @@ while(toEntail.size() > 0) {
       }
     }
   }
-
-  println "Round complete"
 }
 
 println "KB ⊨ Girl"

@@ -3,6 +3,7 @@
     [ "Toddler" ],
     [ "Toddler", "Child" ],
     [ "Child", "Male", "Boy" ],
+    [ "Fish", "Girl" ],
     [ "Infant", "Child" ],
     [ "Child", "Female", "Girl" ],
     [ "Female" ]
