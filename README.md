@@ -2,9 +2,9 @@
 
 ### Usage
 
-groovy backwards.groovy Girl
+groovy backwards.groovy Girl Boy
 
-groovy forwards.groovy Girl
+groovy forwards.groovy Girl Boy
 
 Additional entailment literals can be given, it's just space-delimited in the arguments.
 
