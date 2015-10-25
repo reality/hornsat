@@ -1,5 +1,3 @@
-## DERIVE THE EMPTY CLAUSE, YOU KNOW YOU WANT TO
-
 ### Usage
 
 groovy backwards.groovy Girl Boy
@@ -25,3 +23,5 @@ Is logically equivalent to
 ```
   Child ∧ Female → Girl
 ```
+
+##### Derive the empty clause, you know you want to
