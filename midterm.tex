@@ -48,9 +48,26 @@ time complexity and decidability.
 
 \section{Description of Problem}
 
-\subsection{Horn Clauses}
+The problem concerns determining the satisfiability of a knowledge base of Horn
+clauses when combined with a set of input literals. That is, it decides whether
+a knowledgebase logically entails (can model) a given set of inputs.
 
-\subsection{Satisfiability}
+Horn clauses are a data structure which represent simple conditional 'if; then'
+sentences, sometimes called 'rules,' which form a fragment of First Order Logic.
+
+They work as a set of literally logically ORed together, with at most one
+positive literal. In the positive Horn clause, which is one with exactly one
+positive literal, this forms an implication. For example, the Horn clause 
+[ $\neg$Child, $\neg$Female, Girl ] is equivalent to the sentence "Either a
+Child, or a Female, or a Girl." which is in turn logically equivalent to the
+more intuitive First Order Logic statement 
+"$\neg$Child $\vee$ $\neg$Female $\Rightarrow$ Girl."
+
+In this investigation, only propositional Horn clauses will be considered -
+which means that we exclude the use of quantifiers and variables. This is to
+simplify automated reasoning, in fact propositional Horn clauses are considered
+particularly in the field of logic because as a fragment of First Order Logic 
+their joint satisfiability is determinable through resolution.
 
 The process of resolution when concerned with propositional Horn clauses is
 called refutation-complete\cite{refcomp}, which means that if there is a
@@ -72,40 +89,20 @@ doesn't necessarily mean that it will be found by a particular implementation of
 resolution. In terms of implementation there are two primary methods, 
 forward-chaining and backward-chaining.
 
-
-
-
-
-The investigation will be into two methods of deciding whether a given
-knowledgebase entails a set of literals in an input. Both the knowledgebase and
-the input are structured in the form of Horn clauses.
-
-Horn clauses are a method of representing simple conditional 'if; then'
-sentences, sometimes called 'rules,' which form a subset of first-order logic 
-for which satisfiability is actually decidable through automated reasoning.
-
-The knowledgebase is constructed with a set of positive Horn clauses, each of
-which includes a set of negative literals and exactly one positive literal,
-which essentially means that the set of negative literals entail the positive
-literal.
-
-The input, on the other hand, is a negative Horn clause containing only negative
-literals, which is sometimes called a 'Goal clause,' and intuitively means 
-'show that all these hold.'
-
-Both algorithms presented offer a method of deciding whether the knowledgebase
-entails a given negative Horn clause, and do this by 
-attempting to produce a derivation of the empty negative clause from the
-knowledgebase together with the negative Horn clause input.
-
-This investigation will be limited to the propositional case (variable-free), 
-as in the first-order case neither solution is decidable. Rather, there is no 
-decidable solution to determining whether first-order Horn clauses entail
-anything.
-
 \section{Algorithms}
 
-All algorithms operate on an input of a set of positive horn Clauses
+Both algorithms operate on two inputs:
+
+\begin{enumerate}
+  \item A set of positive Horn clauses $K = k_1 .. k_n$, for which each Horn
+  clause is a list formed of $a_2 .. a_l$ negative literals and the positive 
+  literal $a_1$. 
+  \item A list of literals $P = p_1 .. p_m$.
+\end{enumerate}
+
+Using these inputs, the algorithms return $TRUE$ if a contradiction can be derived
+from the knowledgebase together with the negated forms of the literals $P$, thus proving
+$K \vdash P$, and $FALSE$ otherwise.
 
 \subsection{Forward Chaining}
 
@@ -125,42 +122,75 @@ The naive implementation simply
 
 \subsection{Backward Chaining}
 
-Backward chaining starts with a list of goals as input, which correspond to the
-literals in the negative clause provided as input we are trying to prove.
-
-The algorithm begins by selecting the first goal in the list, and looks for a
-clause in the knowledgebase whose positive literal is equal to it. It then
-calls itself recursively with the negative literals from the correspondent clause
-in the knowledgebase as 'sub-goals,' followed by the rest of the input goals.
-
-It continues to call itself recursively until reaching the end of the list, in
-which case it returns 'true.' If the sub-goals cannot be solved, then other
-clauses in the knowledgebase with the corresponding positive literal are
-considered. If one cannot be found, the algorithm returns false. A goal is
-solved when it leads to a positive clause in the knowledgebase with no negative
-literals.
-
-The algorithm is called backward chaining because it works backwards, from the
-goals to facts in the database. It is also depth-first, since it solves the
-sub-goals turned up by each input before progressing to the next item in the
-input.
-
-It is considered to be rather inefficient, as it will generally end up
-performing many redundant searches, which can lead to exponential time
-complexity in large knowledgebases. Furthermore, it can also end up looping
-infinitely for certain knowledgebases.
+The backward chaining algorithm is so-called because it works backwards, from the
+'goals' towards facts in the database. It is a recursive depth-first search, since 
+it solves the sub-goals turned up by each input before progressing to the next 
+item in the input.
 
 \subsubsection{Description}
 
+This algorithm is defined by a simple function which is called initially with
+our set of goals from input $P$. We then iterate our knowledgebase $K$ looking for a
+clause $C$ with a positive literal $c_1$ which matches with our first negative
+literal $p_1$. If one is found, we remove $p_1$ from $P$, and instead prepend
+the negative literals $c_2 .. c_h$ from our matching clause $C$.
+
+After having done this, we call solve recursively with the modified $P$, until
+the list of goals $P$ is empty, upon which we return $TRUE$. If we're not able
+to find a matching positive literal in the knowledgebase for our $p_1$, the
+function will return $FALSE$ - if we're below the top level we will then return
+to the calling function, which will continue to search for another clause $C$ to
+match its $p_1$; this property forms the depth-first search.
+
+\begin{lstlisting}[mathescape=true]
+def solve[$p_1 .. p_m$]
+  if m = 0 return $TRUE$
+
+  for each clause $C$ with length $h$ in $K$
+    if $c_1$ = $p_1$ and solve[ $c_2 .. c_h, p_2 .. p_m$ ]
+      return $TRUE$
+  
+  return $FALSE$
+\end{lstlisting}
+
 \subsubsection{Correctness}
 
-This algorithm will always return the correct answer only if it finishes.
+This algorithm will always return the correct answer only if it finishes, which
+makes it semi-decidable. It is possible to cause an infinite loop by resolving
+with tautologous statements. Consider, for example, a knowledgebase $K$ constituting
+the clause [ $\neg$Girl, Girl ] and the negated literal [ $\neg$Girl ] for our
+input $P$. In this case, we will resolve the input with our one knowledgebase 
+clause to gain the resolvent $\neg$Girl, which will again resolve with the
+knowledgebase clause infinitely. Because of this, it is also not safe to say
+that it will finish if there is an answer to be found, because we may fall into
+an infinite loop before matching our input with a later knowledgebase clause
+which would lead to a satsifactory proof.
+
+However, in most cases it will return the correct answer; despite this flaw
+backwards-chaining is used for many practical applications including in the
+logic programming language Prolog.
 
 \subsubsection{Time Complexity}
 
 The worst-case for this algorithm will always be infinite, since the algorithm
-is undecidable. However, while the algorithm is undecidable, in most cases it
-will return the correct answer, and depending on the input conditions the 
+is undecidable. However, we can still consider the average case.
+
+If we consider the case in which we select an arbitrary $n$, and generate a grammar 
+with $2n$ literals: $p_0 .. p_{n-1}, q_0 .. q_{n-1}$ and include $4n-4$ clauses in the knowledgebase
+generated like so:
+
+\begin{lstlisting}[mathescape=true]
+for i..n
+  $p_{i-1}$ $\Rightarrow$ $p_i$
+  $q_{i-1}$ $\Rightarrow$ $p_i$
+  $p_{i-1}$ $\Rightarrow$ $q_i$
+  $q_{i-1}$ $\Rightarrow$ $q_i$
+\end{lstlisting}
+
+If we then select a random literal from our grammar, 
+
+To solve $p_i$ we will need $2^i$ steps to solve, meaning the worst case (if it
+finishes) is $2^n$, or exponential.
 
 \subsection{Discussion}
 
