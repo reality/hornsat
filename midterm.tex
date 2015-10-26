@@ -1,0 +1,182 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{graphicx}
+
+\lstset{ %
+language=Java,                  % the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1, each line 
+                                % will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,                   % adds a frame around the code
+tabsize=2,                      % sets default tabsize to 2 spaces
+captionpos=t,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+title=\lstname,                 % show the filename of files included with \lstinputlisting;
+}
+
+\usepackage[parfill]{parskip}
+\begin{document}
+
+\title{Forward and backward-chaining for Testing Satisfiability of Propositional Horn Clauses \protect\\ Midterm Report}
+\author{Luke Slater}
+
+\maketitle
+
+\section{Introduction}
+
+The problem I propose to investigate is one of testing entailment and
+satisfiability of given statements together with a knowledgebase, for a particular 
+type of logical structure. Issues of 
+logical knowledge representation and the possibility of automatically reasoning
+with them have been considered for a long time in the fields of Computer Science
+and Mathematics, and many unsolved problems
+remain in the field. Even for first-order logic it is not possible to create a
+decidable algorithm to prove that any given statement is entailed.
+
+As such, this work will use one particular subset of first-order logic
+represented in Horn clauses, which allows for relatively easy and
+decidable testing of entailment. The two approaches considered seem
+superficially quite similar, but are actually vastly different in terms of
+time complexity and decidability.
+
+\section{Description of Problem}
+
+\subsection{Horn Clauses}
+
+\subsection{Satisfiability}
+
+The process of resolution when concerned with propositional Horn clauses is
+called refutation-complete\cite{refcomp}, which means that if there is a
+contradiction in a set of clauses, there is a path to that contradiction through
+the process of resolution.\cite{resolution}
+
+This means, on the basis of the inverse satisfiability problem\cite{invsat},
+that resolution can be used to determine the satisfiability of a
+literal given a knowledgebase - rather, whether the knowledgebase entails the
+given literal.
+
+This is possible because the assertion KB $\vdash$ T is logically equivalent to
+KB $\cup$ $\neg$T $\vdash$ $\bot$. That is, one can prove that the knowledgebase
+entails a given input literal by deriving a contradiction from the negation of
+the literal with the knowledgebase.
+
+However, just because there is a potential route to the contradiction possible,
+doesn't necessarily mean that it will be found by a particular implementation of
+resolution. In terms of implementation there are two primary methods, 
+forward-chaining and backward-chaining.
+
+
+
+
+
+The investigation will be into two methods of deciding whether a given
+knowledgebase entails a set of literals in an input. Both the knowledgebase and
+the input are structured in the form of Horn clauses.
+
+Horn clauses are a method of representing simple conditional 'if; then'
+sentences, sometimes called 'rules,' which form a subset of first-order logic 
+for which satisfiability is actually decidable through automated reasoning.
+
+The knowledgebase is constructed with a set of positive Horn clauses, each of
+which includes a set of negative literals and exactly one positive literal,
+which essentially means that the set of negative literals entail the positive
+literal.
+
+The input, on the other hand, is a negative Horn clause containing only negative
+literals, which is sometimes called a 'Goal clause,' and intuitively means 
+'show that all these hold.'
+
+Both algorithms presented offer a method of deciding whether the knowledgebase
+entails a given negative Horn clause, and do this by 
+attempting to produce a derivation of the empty negative clause from the
+knowledgebase together with the negative Horn clause input.
+
+This investigation will be limited to the propositional case (variable-free), 
+as in the first-order case neither solution is decidable. Rather, there is no 
+decidable solution to determining whether first-order Horn clauses entail
+anything.
+
+\section{Algorithms}
+
+All algorithms operate on an input of a set of positive horn Clauses
+
+\subsection{Forward Chaining}
+
+Forward chaining instead works by starting with the facts in the knowledgebase
+and works towards the goals given as input. It marks each atomic constituent of
+the input as 'solved' once it finds they are entailed by the knowledgebase.
+
+There are many variations of the forward-chaining approach to Horn clause
+satisfiability, but the one considered here will be a polynomial-time approach.
+The naive implementation simply 
+
+\subsubsection{Description}
+
+\subsubsection{Correctness}
+
+\subsubsection{Time Complexity}
+
+\subsection{Backward Chaining}
+
+Backward chaining starts with a list of goals as input, which correspond to the
+literals in the negative clause provided as input we are trying to prove.
+
+The algorithm begins by selecting the first goal in the list, and looks for a
+clause in the knowledgebase whose positive literal is equal to it. It then
+calls itself recursively with the negative literals from the correspondent clause
+in the knowledgebase as 'sub-goals,' followed by the rest of the input goals.
+
+It continues to call itself recursively until reaching the end of the list, in
+which case it returns 'true.' If the sub-goals cannot be solved, then other
+clauses in the knowledgebase with the corresponding positive literal are
+considered. If one cannot be found, the algorithm returns false. A goal is
+solved when it leads to a positive clause in the knowledgebase with no negative
+literals.
+
+The algorithm is called backward chaining because it works backwards, from the
+goals to facts in the database. It is also depth-first, since it solves the
+sub-goals turned up by each input before progressing to the next item in the
+input.
+
+It is considered to be rather inefficient, as it will generally end up
+performing many redundant searches, which can lead to exponential time
+complexity in large knowledgebases. Furthermore, it can also end up looping
+infinitely for certain knowledgebases.
+
+\subsubsection{Description}
+
+\subsubsection{Correctness}
+
+This algorithm will always return the correct answer only if it finishes.
+
+\subsubsection{Time Complexity}
+
+The worst-case for this algorithm will always be infinite, since the algorithm
+is undecidable. However, while the algorithm is undecidable, in most cases it
+will return the correct answer, and depending on the input conditions the 
+
+\subsection{Discussion}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{krr}
+  Ronald J. Brachman, Hector J. Levesque.
+  \emph{Knowledge Representation \& Reasoning}.
+  2004.
+
+\bibitem{horn}
+  Alfred Horn.
+  \emph{On sentences which are true of direct unions of algebras}
+  Journal of Symbolic Logic, 16:14-21
+  1951.
+\end{thebibliography}
+
+\end{document}
