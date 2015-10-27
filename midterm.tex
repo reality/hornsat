@@ -33,10 +33,12 @@ title=\lstname,                 % show the filename of files included with \lsti
 
 The problem concerns determining the satisfiability of a knowledge base of Horn
 clauses when combined with a set of input literals. That is, it decides whether
-a knowledgebase logically entails (can model) a given set of inputs.
+a knowledgebase logically entails (can model) a given set of inputs. The problem
+of determining propositional Horn clause satisfiability is a recognised problem 
+in computer science named HORNSAT.\cite{hornsat}
 
 Horn clauses are a data structure which represent simple conditional 'if; then'
-sentences, sometimes called 'rules,' which form a fragment of First Order Logic.
+sentences, sometimes called 'rules,' which form a fragment of First Order Logic.\cite{horn}
 
 They work as a set of literally logically ORed together, with at most one
 positive literal. In the positive Horn clause, which is one with exactly one
@@ -72,9 +74,6 @@ doesn't necessarily mean that it will be found by a particular implementation of
 resolution. In terms of implementation there are two primary methods, 
 forward-chaining and backward-chaining.
 
-The problem of determining propositional Horn clause satisfiability is a
-recognised problem in computer science, and 
-
 \section{Algorithms}
 
 Both algorithms operate on two inputs:
@@ -97,7 +96,9 @@ and works towards the goals given as input. It marks each atomic constituent of
 the input as 'solved' once it finds they are entailed by the knowledgebase.
 
 There are many variations of the forward-chaining approach to Horn clause
-satisfiability, but the one considered here will be a polynomial-time approach.
+satisfiability, with the best approach being linear\cite{linforward} but the 
+one considered here will be a polynomial-time approach described in Logical 
+Foundations of Proof Complexity.\cite{proofcomp}
 
 \subsubsection{Description}
 
@@ -114,13 +115,13 @@ satisfiability, but the one considered here will be a polynomial-time approach.
 
 This approach is a breadth first search, meaning that it will always evaluate
 the entire knowledgebase. Thus, via the property of HORNSAT being
-refutation-complete, we know that we will always reach the correct response.
+refutation-complete, we know that we will always reach the correct response.\cite{proofcomp}
 
 \subsubsection{Time Complexity}
 
 This algorithm is considered P-complete with respect to the number of literals
 in the knowledgebase. It is also P-hard, since it can be reduced to other
-problems in P.
+problems in P.\cite{proofcomp}
 
 \subsection{Backward Chaining}
 
@@ -158,19 +159,19 @@ def solve[$p_1 .. p_m$]
 \subsubsection{Correctness}
 
 This algorithm will always return the correct answer only if it finishes, which
-makes it semi-decidable. It is possible to cause an infinite loop by resolving
+makes it semi-decidable.\cite{krr} It is possible to cause an infinite loop by resolving
 with tautologous statements. Consider, for example, a knowledgebase $K$ constituting
 the clause [ $\neg$Girl, Girl ] and the negated literal [ $\neg$Girl ] for our
 input $P$. In this case, we will resolve the input with our one knowledgebase 
 clause to gain the resolvent $\neg$Girl, which will again resolve with the
-knowledgebase clause infinitely. Because of this, it is also not safe to say
+knowledgebase clause infinitely. It is also not safe to say
 that it will finish if there is an answer to be found, because we may fall into
 an infinite loop before matching our input with a later knowledgebase clause
 which would lead to a satsifactory proof.
 
 However, in most cases it will return the correct answer; despite this flaw
 backwards-chaining is used for many practical applications including in the
-logic programming language Prolog.
+logic programming language Prolog.\cite{prolog}
 
 \subsubsection{Time Complexity}
 
@@ -199,6 +200,11 @@ in exponential with regard to the number of literals in the knowledgebase.
 
 \begin{thebibliography}{9}
 
+\bibitem{hornsat}
+  Tärnlund, Sten-Åke.
+  \cite{Horn clause computability.} 
+  BIT Numerical Mathematics 17.2 (1977): 215-226.
+
 \bibitem{krr}
   Ronald J. Brachman, Hector J. Levesque.
   \emph{Knowledge Representation \& Reasoning}.
@@ -209,6 +215,37 @@ in exponential with regard to the number of literals in the knowledgebase.
   \emph{On sentences which are true of direct unions of algebras}
   Journal of Symbolic Logic, 16:14-21
   1951.
+
+\bibitem{invsat}
+  Kavvadias, Dimitris, and Martha Sideri. 
+  \emph{The inverse satisfiability problem.}
+  SIAM Journal on Computing 28.1 (1998): 152-163.
+
+\bibitem{resolution}
+  Buning, Hans Kleine, Marek Karpinski, and Andreas Flogel. 
+  \emph{Resolution for quantified Boolean formulas.} 
+  Information and computation 117.1 (1995): 12-18.
+
+\bibitem{refcomp}
+  Henschen, L., and Larry Wos. 
+  \emph{Unit refutations and Horn sets.} 
+  Journal of the ACM (JACM) 21.4 (1974): 590-605.
+
+\bibitem{proofcomp}
+  Stephen Cook; Phuong Nguyen (2010). 
+  \emph{Logical foundations of proof complexity.}
+  Cambridge University Press. p. 224. ISBN 978-0-521-51729-4.
+
+\bibitem{linforward}
+  Dowling, W., and Gallier, J., (1984) 
+  \emph{Linear-time algorithms for testing the satisfiability of propositional Horn formulae.}
+  Journal of Logic Programming, 3, 267-284.
+
+\bibitem{prolog}
+  \emph{Languages that support backward chaining}
+  Russell \& Norvig 2009, p. 339.
+
+
 \end{thebibliography}
 
 \end{document}
