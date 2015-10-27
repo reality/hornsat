@@ -29,23 +29,6 @@ title=\lstname,                 % show the filename of files included with \lsti
 
 \maketitle
 
-\section{Introduction}
-
-The problem I propose to investigate is one of testing entailment and
-satisfiability of given statements together with a knowledgebase, for a particular 
-type of logical structure. Issues of 
-logical knowledge representation and the possibility of automatically reasoning
-with them have been considered for a long time in the fields of Computer Science
-and Mathematics, and many unsolved problems
-remain in the field. Even for first-order logic it is not possible to create a
-decidable algorithm to prove that any given statement is entailed.
-
-As such, this work will use one particular subset of first-order logic
-represented in Horn clauses, which allows for relatively easy and
-decidable testing of entailment. The two approaches considered seem
-superficially quite similar, but are actually vastly different in terms of
-time complexity and decidability.
-
 \section{Description of Problem}
 
 The problem concerns determining the satisfiability of a knowledge base of Horn
@@ -89,6 +72,9 @@ doesn't necessarily mean that it will be found by a particular implementation of
 resolution. In terms of implementation there are two primary methods, 
 forward-chaining and backward-chaining.
 
+The problem of determining propositional Horn clause satisfiability is a
+recognised problem in computer science, and 
+
 \section{Algorithms}
 
 Both algorithms operate on two inputs:
@@ -112,13 +98,29 @@ the input as 'solved' once it finds they are entailed by the knowledgebase.
 
 There are many variations of the forward-chaining approach to Horn clause
 satisfiability, but the one considered here will be a polynomial-time approach.
-The naive implementation simply 
 
 \subsubsection{Description}
 
+\begin{enumerate}
+  \item If all literals in $P$ are marked as solved then return $TRUE$
+  \item Select a clause $k_i$ in $K$ such that it contains only a positive
+  literal and mark the positive literal $z$ as solved.
+  \item Iterate and remove from KB all clauses with positive literal $z$,
+  \item If there is no such clause, return $FALSE$
+  \item Go to 1.
+\end{enumerate}
+
 \subsubsection{Correctness}
 
+This approach is a breadth first search, meaning that it will always evaluate
+the entire knowledgebase. Thus, via the property of HORNSAT being
+refutation-complete, we know that we will always reach the correct response.
+
 \subsubsection{Time Complexity}
+
+This algorithm is considered P-complete with respect to the number of literals
+in the knowledgebase. It is also P-hard, since it can be reduced to other
+problems in P.
 
 \subsection{Backward Chaining}
 
@@ -187,13 +189,13 @@ for i..n
   $q_{i-1}$ $\Rightarrow$ $q_i$
 \end{lstlisting}
 
-If we then select a random literal from our grammar, 
-
-To solve $p_i$ we will need $2^i$ steps to solve, meaning the worst case (if it
-finishes) is $2^n$, or exponential.
+If we then select a random literal from our grammar, and attempt to prove it
+with the backwards chaining algorithm, we can evaluate the time complexity for a
+particularly deep tree. It is clear to see that to solve $p_i$ we will need $2^i$ 
+steps to reach a solution, meaning the worst case (if it finishes) is $2^n$, or
+in exponential with regard to the number of literals in the knowledgebase.
 
 \subsection{Discussion}
-
 
 \begin{thebibliography}{9}
 
