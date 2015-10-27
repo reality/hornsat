@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{listings}
+\usepackage{hyperref}
 \usepackage{graphicx}
 
 \lstset{ %
@@ -31,28 +32,38 @@ title=\lstname,                 % show the filename of files included with \lsti
 
 \section{Description of Problem}
 
-The problem concerns determining the satisfiability of a knowledge base of Horn
-clauses when combined with a set of input literals. That is, it decides whether
-a knowledgebase logically entails (can model) a given set of inputs. The problem
+The problem concerns determining the satisfiability of a set of literals in
+combination with a knowledgebase of Horn
+clauses. That is, it decides whether
+a knowledgebase logically entails, or has a model which supports, a given set of inputs. The problem
 of determining propositional Horn clause satisfiability is a recognised problem 
 in computer science named HORNSAT.\cite{hornsat}
 
 Horn clauses are a data structure which represent simple conditional 'if; then'
-sentences, sometimes called 'rules,' which form a fragment of First Order Logic.\cite{horn}
+implication sentences, sometimes called 'rules,' which form a fragment of First 
+Order Logic.\cite{horn}
 
-They work as a set of literally logically ORed together, with at most one
-positive literal. In the positive Horn clause, which is one with exactly one
-positive literal, this forms an implication. For example, the Horn clause 
+They are constructed from a set of literals which are logically OR-ed together, 
+and include at most one
+positive literal. In the positive Horn clause, which includes exactly one
+positive literal, this forms an implication of the positive literal with the 
+negative literals as conditions. For example, the Horn clause 
 [ $\neg$Child, $\neg$Female, Girl ] is equivalent to the sentence "Either a
 Child, or a Female, or a Girl." which is in turn logically equivalent to the
 more intuitive First Order Logic statement 
-"$\neg$Child $\vee$ $\neg$Female $\Rightarrow$ Girl."
+"Child $\land$ Female $\Rightarrow$ Girl."
 
 In this investigation, only propositional Horn clauses will be considered -
 which means that we exclude the use of quantifiers and variables. This is to
 simplify automated reasoning, in fact propositional Horn clauses are considered
 particularly in the field of logic because as a fragment of First Order Logic 
-their joint satisfiability is determinable through resolution.
+their satisfiability is decidable through the process of resolution.
+
+Resolution is the logical reasoning process of resolving positive and negative literals
+among clauses of a knowledgebase, eliminating them and combining their clauses
+to form logical equivalencies in an attempt to derive
+the empty clause (a contradiction) and thus prove that the knowledgebase is
+unsatisfiable.
 
 The process of resolution when concerned with propositional Horn clauses is
 called refutation-complete\cite{refcomp}, which means that if there is a
@@ -61,7 +72,7 @@ the process of resolution.\cite{resolution}
 
 This means, on the basis of the inverse satisfiability problem\cite{invsat},
 that resolution can be used to determine the satisfiability of a
-literal given a knowledgebase - rather, whether the knowledgebase entails the
+literal together with a knowledgebase - rather, whether the knowledgebase entails the
 given literal.
 
 This is possible because the assertion KB $\vdash$ T is logically equivalent to
@@ -70,7 +81,7 @@ entails a given input literal by deriving a contradiction from the negation of
 the literal with the knowledgebase.
 
 However, just because there is a potential route to the contradiction possible,
-doesn't necessarily mean that it will be found by a particular implementation of
+that doesn't necessarily mean that it will be found by a particular implementation of
 resolution. In terms of implementation there are two primary methods, 
 forward-chaining and backward-chaining.
 
@@ -80,9 +91,10 @@ Both algorithms operate on two inputs:
 
 \begin{enumerate}
   \item A set of positive Horn clauses $K = k_1 .. k_n$, for which each Horn
-  clause is a list formed of $a_2 .. a_l$ negative literals and the positive 
+  clause is a list formed of $a_2 .. a_l$ negative literals and a positive 
   literal $a_1$. 
-  \item A list of literals $P = p_1 .. p_m$.
+  \item A list of literals $P = p_1 .. p_m$ with which to determine
+  satisfiability.
 \end{enumerate}
 
 Using these inputs, the algorithms return $TRUE$ if a contradiction can be derived
@@ -91,12 +103,12 @@ $K \vdash P$, and $FALSE$ otherwise.
 
 \subsection{Forward Chaining}
 
-Forward chaining instead works by starting with the facts in the knowledgebase
+Forward chaining works by starting with the facts in the knowledgebase
 and works towards the goals given as input. It marks each atomic constituent of
 the input as 'solved' once it finds they are entailed by the knowledgebase.
 
 There are many variations of the forward-chaining approach to Horn clause
-satisfiability, with the best approach being linear\cite{linforward} but the 
+satisfiability, with the fastest approach being linear\cite{linforward} but the 
 one considered here will be a polynomial-time approach described in Logical 
 Foundations of Proof Complexity.\cite{proofcomp}
 
@@ -105,28 +117,36 @@ Foundations of Proof Complexity.\cite{proofcomp}
 \begin{enumerate}
   \item If all literals in $P$ are marked as solved then return $TRUE$
   \item Select a clause $k_i$ in $K$ such that it contains only a positive
-  literal and mark the positive literal $z$ as solved.
-  \item Iterate and remove from KB all clauses with positive literal $z$,
+  literal.
   \item If there is no such clause, return $FALSE$
+  \item Mark the positive literal $z$ of $k_i$ as solved.
+  \item Iterate and remove from $K$ all clauses with positive literal $z$, and
+  remove instances of the literal $z$ from other clauses which contain it as a
+  negative literal.
   \item Go to 1.
 \end{enumerate}
 
 \subsubsection{Correctness}
 
 This approach is a breadth first search, meaning that it will always evaluate
-the entire knowledgebase. Thus, via the property of HORNSAT being
-refutation-complete, we know that we will always reach the correct response.\cite{proofcomp}
+the entire knowledgebase and consider all potential paths to a proof and
+terminate when resolution can no longer be applied. Thus, via the property 
+of HORNSAT being refutation-complete (there exists a valid path to
+a refutation through application of resolution if a refutation exists), we know 
+that we will always reach the correct response.\cite{proofcomp}
 
 \subsubsection{Time Complexity}
 
-This algorithm is considered P-complete with respect to the number of literals
-in the knowledgebase. It is also P-hard, since it can be reduced to other
-problems in P.\cite{proofcomp}
+Forward chaining is considered a P-complete problem, and is also P-hard, since it 
+can be reduced to other problems in P.\cite{proofcomp} This solution is
+polynomial with respect to the number of literals in the
+knowledgebase.\cite{proofcomp}\cite{krr}
 
 \subsection{Backward Chaining}
 
 The backward chaining algorithm is so-called because it works backwards, from the
-'goals' towards facts in the database. It is a recursive depth-first search, since 
+'goals' towards facts in the database; for this reason it is sometimes called
+the 'goal-driven' approach. It is a recursive depth-first search, since 
 it solves the sub-goals turned up by each input before progressing to the next 
 item in the input.
 
@@ -167,18 +187,21 @@ clause to gain the resolvent $\neg$Girl, which will again resolve with the
 knowledgebase clause infinitely. It is also not safe to say
 that it will finish if there is an answer to be found, because we may fall into
 an infinite loop before matching our input with a later knowledgebase clause
-which would lead to a satsifactory proof.
+which would lead to a satisfactory proof.
 
 However, in most cases it will return the correct answer; despite this flaw
-backwards-chaining is used for many practical applications including in the
-logic programming language Prolog.\cite{prolog}
+backwards-chaining is used for many practical applications including expert
+systems and  the logic programming language Prolog\cite{prolog}.
 
 \subsubsection{Time Complexity}
 
 The worst-case for this algorithm will always be infinite, since the algorithm
-is undecidable. However, we can still consider the average case.
+is undecidable. However, we can still consider the worst-case time complexity 
+in the case the algorithm does terminate. 
 
-If we consider the case in which we select an arbitrary $n$, and generate a grammar 
+To determine a a lower bound, we can establish a complicated knowledgebase which 
+requires a maximum number of steps to reach a solution in relation to the total number
+of literals in the database. If we consider the case of an arbitrary $n$, and generate a grammar 
 with $2n$ literals: $p_0 .. p_{n-1}, q_0 .. q_{n-1}$ and include $4n-4$ clauses in the knowledgebase
 generated like so:
 
@@ -191,18 +214,82 @@ for i..n
 \end{lstlisting}
 
 If we then select a random literal from our grammar, and attempt to prove it
-with the backwards chaining algorithm, we can evaluate the time complexity for a
-particularly deep tree. It is clear to see that to solve $p_i$ we will need $2^i$ 
+with the backwards chaining algorithm, we can evaluate the time complexity. 
+It is possible to show that to solve $p_i$ we will need $2^i$ 
 steps to reach a solution, meaning the worst case (if it finishes) is $2^n$, or
-in exponential with regard to the number of literals in the knowledgebase.
+exponential with regard to the number of distinct literals in the grammar.
 
-\subsection{Discussion}
+However, while there is a poor worst-case time complexity, backwards chaining is
+considered because often it can lead to proofs in linear time, since the
+path considered is more direct. I hope to show and evaluate this potential
+in my investigation.
+
+\section{Implementation}
+
+Both algorithms have complete implementations in the Groovy programming
+language, which can be found at \url{http://github.com/reality/hornsat}.
+
+Horn clauses are represented as simple lists of strings, which are the 
+literals. The positive literal in the clause is always the first in the 
+list. The knowledgebase is serialised as a set of positive Horn clauses, 
+stored in a JSON file which is parsed by both algorithm implementations.
+
+The literals we try to logically entail in combination with the knowledgebase are
+provided as a space-delimited list of strings in the command line arguments of
+the program. Since there will never be any positive literals in the list of
+goals considered in either program, we simply assume that these are negative
+literals rather than explicitly negating them in a symbolic manner.
+
+The implementations are simple and relatively similar to the formal algorithm
+definitions, since the syntactic resolution process can be easily modelled with
+basic string and list operations.
+
+\section{Experiments}
+
+It should be relatively simple to develop a script to generate synthetic
+grammars, along with associated knowledgebases and queries. These can be
+instantiated with many variables but I expect the most interesting to be:
+
+\begin{itemize}
+  \item The overall number of clauses in the knowledgebase.
+  \item The overall number of literals in the knowledgebase.
+  \item The number of literals per clause in the knowledgebase.
+\end{itemize}
+
+The efficiency and practical time complexity of the algorithms can likely be
+measured simply by the number of steps it takes to reach a solution. To compare
+with the theoretical time complexities of the algorithms the number of steps
+with regard to the number of literals in the knowledgebase will have to be
+considered.
+
+However, it is likely that the advantages of backwards-chaining would become
+more apparent in non-synthetic grammars, so I will also research into any
+sources of non-synthetic Horn clause databases or possibly develop my own and
+also consider these if it is feasible.
+
+In running experiments using these and potentially other
+variables I hope to consider the following:
+
+\begin{itemize}
+  \item Affirmation of the theoretical time complexity.
+  \item Whether separate time complexities can be given for different levels of
+  knowledgebase complexity.
+  \item Determine any conditions or generative variable assignments in which
+  backwards-chaining performs better than forward chaining.
+  \item Whether time complexity differs between non-synthetic and synthetic
+  databases for either approach.
+\end{itemize}
+
+\section{Acknowledgements}
+
+Algorithms adapted from definitions in Knowledge Representation and
+Reasoning\cite{krr} and Logical Foundations of Proof Complexity\cite{proofcomp}.
 
 \begin{thebibliography}{9}
 
 \bibitem{hornsat}
   Tärnlund, Sten-Åke.
-  \cite{Horn clause computability.} 
+  \emph{Horn clause computability.} 
   BIT Numerical Mathematics 17.2 (1977): 215-226.
 
 \bibitem{krr}
@@ -244,7 +331,6 @@ in exponential with regard to the number of literals in the knowledgebase.
 \bibitem{prolog}
   \emph{Languages that support backward chaining}
   Russell \& Norvig 2009, p. 339.
-
 
 \end{thebibliography}
 
