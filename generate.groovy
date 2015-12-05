@@ -36,7 +36,7 @@ for(def i=10;i<=1000;i+=10) {
         clauseGrammar.remove(newWordIndex)
       }
       if(clause) {
-        usedLiterals += clause
+        usedLiterals << clause.last()
         newKB.clauses << clause
       }
     }

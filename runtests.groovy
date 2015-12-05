@@ -14,8 +14,11 @@ for(def i=10;i<=1000;i+=10) {
   KBs.eachWithIndex { kb, z ->
     def toEntail = kb.grammar[rand.nextInt(kb.grammar.size())]
     def a = Forwards.forwardChain(kb, toEntail)
+    def b = Backwards.backwardsChain(kb, [toEntail])
+//    if(a[0] == true) {
     results[0] << a[1]
-    results[1] << Backwards.backwardsChain(kb, [toEntail])[1]
+    results[1] << b[1]
+ //   }
   }
 
   new File('./results', i+'.csv').withWriter('utf-8') { writer ->
