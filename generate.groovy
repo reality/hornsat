@@ -7,13 +7,12 @@ import groovy.json.JsonBuilder
 
 def kbsToGenerate = args[0].toInteger()
 def maxWordsPerClause = args[1].toInteger()
-def clausesPerKB = args[2].toInteger()
 def kbs = []
 def rand = new Random()
 
 def charset = (('a'..'z') + ('A'..'Z') + ('0'..'9')).join()
 
-for(def i=50;i<=1000;i+=50) {
+for(def i=10;i<=1000;i+=10) {
   kbs = []
   (1..kbsToGenerate).each {
     def grammar = []
@@ -23,11 +22,11 @@ for(def i=50;i<=1000;i+=50) {
 
     // Add some simple ones
     def newKB = [ 'grammar': grammar, clauses: [] ]
-    def usedPositives = []
-    (1..clausesPerKB).each {
+    def usedLiterals = []
+    while(usedLiterals.size() < grammar.size()) {
       def clause = []
       def cAmount = rand.nextInt(maxWordsPerClause+1) 
-      def clauseGrammar = grammar.clone() - usedPositives
+      def clauseGrammar = grammar.clone() - usedLiterals
       (0..cAmount).each {
         if(clauseGrammar.size() == 0) {
           return;
@@ -37,7 +36,7 @@ for(def i=50;i<=1000;i+=50) {
         clauseGrammar.remove(newWordIndex)
       }
       if(clause) {
-        usedPositives << clause.last()
+        usedLiterals += clause
         newKB.clauses << clause
       }
     }

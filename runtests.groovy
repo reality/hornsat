@@ -6,14 +6,15 @@ def file
 def KBs
 def results
 
-for(def i=50;i<=1000;i+=50) {
-  file = new File('knowledgebases.json')
+for(def i=10;i<=1000;i+=10) {
+  file = new File('kbs/'+i+'.json')
   KBs = new JsonSlurper().parse(file)
   results = [[], []]
 
   KBs.eachWithIndex { kb, z ->
     def toEntail = kb.grammar[rand.nextInt(kb.grammar.size())]
-    results[0] << Forwards.forwardChain(kb, toEntail)[1]
+    def a = Forwards.forwardChain(kb, toEntail)
+    results[0] << a[1]
     results[1] << Backwards.backwardsChain(kb, [toEntail])[1]
   }
 
