@@ -2,11 +2,23 @@ import groovy.json.JsonSlurper
 import java.util.Random
 def rand = new Random()
 
-def file = new File('knowledgebases.json')
-def KBs = new JsonSlurper().parse(file)
+def file
+def KBs
+def results
 
-KBs.eachWithIndex { kb, i ->
-  def toEntail = kb.grammar[rand.nextInt(kb.grammar.size())]
-  println Forwards.forwardChain(kb, toEntail)
-  println Backwards.backwardsChain(kb, [toEntail])
+for(def i=50;i<=1000;i+=50) {
+  file = new File('knowledgebases.json')
+  KBs = new JsonSlurper().parse(file)
+  results = [[], []]
+
+  KBs.eachWithIndex { kb, z ->
+    def toEntail = kb.grammar[rand.nextInt(kb.grammar.size())]
+    results[0] << Forwards.forwardChain(kb, toEntail)[1]
+    results[1] << Backwards.backwardsChain(kb, [toEntail])[1]
+  }
+
+  new File('./results', i+'.csv').withWriter('utf-8') { writer ->
+    writer.writeLine results[0].join(',')
+    writer.writeLine results[1].join(',')
+  }
 }

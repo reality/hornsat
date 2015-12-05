@@ -1,23 +1,22 @@
 class Backwards {
   static backwardsChain(KB, toEntail) {
-    backwardsChain(KB, toEntail, 0)
-  }
-
-  static backwardsChain(KB, toEntail, steps) {
+    def steps = 0
     if(toEntail.size() == 0) return [true, steps];
 
     for(def literal : toEntail) {
-      steps++
-      def clauses = KB.clauses.findAll { 
+      def clauses = KB.clauses.findAll { c ->
         steps++
-        it.last() == literal 
+        c.last() == literal
       }
       for(def clause : clauses) {
         steps++
-        def newMatch = toEntail.clone()
-        newMatch.remove(literal)
-        newMatch += clause.init()
-        if(backwardsChain(KB, newMatch, steps)) return [true, steps];
+        def newMatch = toEntail.clone() + clause.init() - literal
+        def res = backwardsChain(KB, newMatch)
+
+        steps += res[1]
+        if(res[0] == true) {
+          return [true, steps];
+        }
       }
     }
 

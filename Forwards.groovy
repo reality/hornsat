@@ -16,7 +16,10 @@ class Forwards {
           toEntail -= positive
           marked = true
         } else {
-          def ent = clause.every { entailed.contains(it) || it == positive }
+          def ent = clause.every { 
+            steps++
+            entailed.contains(it) || it == positive 
+          }
           if(ent) {
             entailed << positive
             toEntail -= positive
